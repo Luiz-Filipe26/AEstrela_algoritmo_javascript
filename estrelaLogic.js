@@ -96,7 +96,7 @@ botaoGerarCaminho.onclick = () => {
     let xAtual = 0, yAtual = 19;
 
     let g = 0;
-    let h = calc_h(xAtual, yAtual, destX, destY);
+    let h = calc_h(xAtual, yAtual);
     let f = g + h;
     
     let campoAnalise = inicializarCampoAnalise(xAtual, yAtual, f, g, h);
