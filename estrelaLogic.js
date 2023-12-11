@@ -92,31 +92,34 @@ let destX, destY;
 
 botaoGerarCaminho.onclick = () => {
 
-    let campoAnalise = Array.from(Array(campoAtual.length), () => []);
-
-    for (let i=0; i<campoAtual.length; i++) {
-        for (let j=0; j<campoAtual[i].length; j++) {
-            campoAnalise[i][j] = new Node(0, 0, 0, campoAtual[i][j]);
-        }
-    }
-
-    destX = 20;
-    destY = 1;
-
+    destX = 20, destY = 1;
     let xAtual = 0, yAtual = 19;
 
-    let f, g, h;
-
-    g = 0;
-    h = calc_h(xAtual, yAtual, destX, destY);
-    f = g + h;
-    campoAnalise[xAtual][yAtual] = new Node(f, g, h, EnumValoresCampo.fechado);
+    let g = 0;
+    let h = calc_h(xAtual, yAtual, destX, destY);
+    let f = g + h;
+    
+    let campoAnalise = inicializarCampoAnalise(xAtual, yAtual, f, g, h);
 
     while (xAtual !== destX || yAtual !== destY) {
         break;
     }
 
     desenhar(campoAtual);
+}
+
+function inicializarCampoAnalise(xAtual, yAtual, f, g, h) {
+    let campoAnalise = Array.from(Array(campoAtual.length), () => []);
+
+    for (let i=0; i<campoAtual.length; i++) {
+        for(let j=0; j<campoAtual[i].length; j++) {
+            campoAnalise[i][j] = new Node(0, 0, 0, campoAtual[i][j]);
+        }
+    }
+
+    campoAnalise[xAtual][yAtual] = new Node(f, g, h, EnumValoresCampo.fechado);
+
+    return campoAnalise;
 }
 
 function calc_h(xAtual, yAtual) {
