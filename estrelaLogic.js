@@ -3,8 +3,18 @@ import constantes from './constantes.js';
 const EnumValoresCampo = {
     espaco: 'espaco',
     parede: 'parede',
-    caminho: 'verde'
+    caminho: 'verde',
+    fechado: 'fechado',
+    aberto: 'aberto'
 };
+
+function Node(f, g, h, valorCampo) {
+    this.f = f;
+    this.g = g;
+    this.h = h;
+    this.valor = valorCampo;
+}
+
 const valoresCampo = Object.values(EnumValoresCampo);
 
 const grade = document.getElementById('grid');
@@ -76,14 +86,41 @@ botaoGerarCampo.onclick = () => {
     desenhar(campoAtual);
 }
 
+
+
+let destX, destY;
+
 botaoGerarCaminho.onclick = () => {
 
-    for (let i = 0; i < campoAtual.length; i++) {
-        for (let j = 0; j < campoAtual[i].length; j++) {
-            campoAtual[i][j] = EnumValoresCampo.caminho;
+    let campoAnalise = Array.from(Array(campoAtual.length), () => []);
+
+    for (let i=0; i<campoAtual.length; i++) {
+        for (let j=0; j<campoAtual[i].length; j++) {
+            campoAnalise[i][j] = new Node(0, 0, 0, campoAtual[i][j]);
         }
     }
+
+    destX = 20;
+    destY = 1;
+
+    let xAtual = 0, yAtual = 19;
+
+    let f, g, h;
+
+    g = 0;
+    h = calc_h(xAtual, yAtual, destX, destY);
+    f = g + h;
+    campoAnalise[xAtual][yAtual] = new Node(f, g, h, EnumValoresCampo.fechado);
+
+    while (xAtual !== destX || yAtual !== destY) {
+        break;
+    }
+
     desenhar(campoAtual);
+}
+
+function calc_h(xAtual, yAtual) {
+    return Math.sqrt((destX - xAtual)**2  + (destY - yAtual)**2);
 }
 
 iniciarCampo();
