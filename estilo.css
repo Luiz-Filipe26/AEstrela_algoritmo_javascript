@@ -40,7 +40,7 @@
 
 .parede { background-color: #000000; }
 .espaco { background-color: #ffffff; }
-.verde { background-color: #36ca31; }
+.caminho { background-color: #006eff; }
 
-.fechado {background-color: rgb(17, 36, 30);}
-.aberto {background-color: rgb(202, 199, 6);}
+.fechado {background-color: rgb(255, 0, 0);}
+.aberto {background-color: rgb(9, 255, 0);}
