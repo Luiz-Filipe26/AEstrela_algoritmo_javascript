@@ -35,22 +35,7 @@ let campoAtual;
 
 let continuar = true;
 
-const botaContinuar = document.getElementById('botaContinuar');
-
-botaoContinuar.onclick = () => {
-    continuar = true;
-}
-
-function esperarClique() {
-    return new Promise(resolve => {
-        const interval = setInterval(() => {
-            if (continuar) {
-                clearInterval(interval);
-                resolve();
-            }
-        }, 100);
-    });
-}
+const botaoContinuar = document.getElementById('botaContinuar');
 
 async function gerarCaminho(campo) {
     
@@ -86,22 +71,6 @@ async function gerarCaminho(campo) {
     }
 
     desenharCaminho(campoAnalise);
-}
-
-function desenharCaminho(campoAnalise) {
-    let novoCampo = inicializarCampoAnalise();
-    let posicao = fechados[fechados.length - 1];
-
-    novoCampo[yInicial][xInicial] = campoAnalise[yInicial][xInicial];
-    novoCampo[yInicial][xInicial].valor = EnumValoresCampo.caminho;
-
-    while(posicao.x !== xInicial && posicao.y !== yInicial) {
-        novoCampo[posicao.y][posicao.x] = campoAnalise[posicao.y][posicao.x];
-        novoCampo[posicao.y][posicao.x].valor = EnumValoresCampo.caminho;
-        posicao = new Posicao(posicao.x - campoAnalise[posicao.y][posicao.x].dx, posicao.y - campoAnalise[posicao.y][posicao.x].dy);
-    }
-    
-    desenharNos(novoCampo);
 }
 
 function abrir(campoAnalise, indiceMenorF, posCentral) {
@@ -174,14 +143,6 @@ function calc_h(posicao) {
     return Math.floor(passosDiagonais * unidadePassoDiagonal + passosRetos * unidadePassoReto);
 }
 
-function calc_dist(x1, y1, x2, y2) {
-    return Math.sqrt((x2 - x1)**2  + (y2 - y1)**2);
-}
-
-function esperar(milisegundos) {
-    return new Promise(resolve => setTimeout(resolve, milisegundos));
-}
-
 function inicializarCampoAnalise() {
     let campoAnalise = Array.from(Array(campoAtual.length), () => []);
 
@@ -192,4 +153,40 @@ function inicializarCampoAnalise() {
     }
 
     return campoAnalise;
+}
+
+function desenharCaminho(campoAnalise) {
+    let novoCampo = inicializarCampoAnalise();
+    let posicao = fechados[fechados.length - 1];
+
+    novoCampo[yInicial][xInicial] = campoAnalise[yInicial][xInicial];
+    novoCampo[yInicial][xInicial].valor = EnumValoresCampo.caminho;
+
+    while(posicao.x !== xInicial && posicao.y !== yInicial) {
+        novoCampo[posicao.y][posicao.x] = campoAnalise[posicao.y][posicao.x];
+        novoCampo[posicao.y][posicao.x].valor = EnumValoresCampo.caminho;
+        posicao = new Posicao(posicao.x - campoAnalise[posicao.y][posicao.x].dx, posicao.y - campoAnalise[posicao.y][posicao.x].dy);
+    }
+    
+    desenharNos(novoCampo);
+}
+
+
+botaoContinuar.onclick = () => {
+    continuar = true;
+}
+
+function esperarClique() {
+    return new Promise(resolve => {
+        const interval = setInterval(() => {
+            if (continuar) {
+                clearInterval(interval);
+                resolve();
+            }
+        }, 100);
+    });
+}
+
+function esperarTempo(milisegundos) {
+    return new Promise(resolve => setTimeout(resolve, milisegundos));
 }
