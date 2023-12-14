@@ -57,7 +57,7 @@ async function gerarCaminho(campo) {
     campoAtual = campo;
 
     xInicial = 0, yInicial = 18;
-    destX = 18, destY = 1;
+    destX = 19, destY = 1;
 
 
     let posAtual = new Posicao(xInicial, yInicial);
