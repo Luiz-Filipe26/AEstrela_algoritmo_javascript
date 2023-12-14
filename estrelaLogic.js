@@ -1,6 +1,6 @@
 import constantes from './constantes.js';
 import gerarCaminho from './encontrarCaminho.js';
-export default desenhar;
+export default desenharNos;
 
 const EnumValoresCampo = {
     espaco: 'espaco',
@@ -17,6 +17,7 @@ const botaoGerarCampo = document.getElementById('botaoGerarCampo');
 const botaoGerarCaminho = document.getElementById('botaoGerarCaminho');
 
 let campoAtual;
+const unidade = 10;
 
 function criarCampoAleatorio() {
     const matriz = [];
@@ -33,6 +34,29 @@ function criarCampoAleatorio() {
 
 function getNumeroAleatorio(max) {
     return Math.floor(Math.random() * max);
+}
+
+function desenharNos(matriz) {
+    grade.innerHTML = '';
+    const gridContainer = document.getElementById('grid');
+
+    for (let i = 0; i < matriz.length; i++) {
+        for (let j = 0; j < matriz[i].length; j++) {
+            const celula = document.createElement('div');
+            celula.className = `grid-item ${matriz[i][j].valor}`;
+            celula.style.fontSize = '10px';
+
+            if(matriz[i][j].f !== 0) {
+                const f = Math.floor(matriz[i][j].f * unidade);
+                const g = Math.floor(matriz[i][j].g * unidade);
+                const h = Math.floor(matriz[i][j].h * unidade);
+    
+                celula.innerHTML = `F: ${f}<br>G: ${g}<br>H: ${h}`;
+            }
+
+            gridContainer.appendChild(celula);
+        }
+    }
 }
 
 function desenhar(matriz) {

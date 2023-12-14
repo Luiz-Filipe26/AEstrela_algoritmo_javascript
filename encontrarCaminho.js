@@ -1,4 +1,4 @@
-import desenhar from './estrelaLogic.js';
+import desenharNos from './estrelaLogic.js';
 export default gerarCaminho;
 
 const EnumValoresCampo = {
@@ -23,60 +23,106 @@ function Posicao(x, y) {
     this.y = y;
 }
 
+let xInicial, yInicial;
 let destX, destY;
+
 let abertos = [];
 let fechados = [];
 let campoAtual;
 
+let continuar = true;
+
+const botaContinuar = document.getElementById('botaContinuar');
+
+botaoContinuar.onclick = () => {
+    continuar = true;
+}
+
+function esperarClique() {
+    return new Promise(resolve => {
+        const interval = setInterval(() => {
+            if (continuar) {
+                clearInterval(interval);
+                resolve();
+            }
+        }, 100);
+    });
+}
+
 async function gerarCaminho(campo) {
     
     campoAtual = campo;
-    let posAtual = new Posicao(0, 18);
 
-    destX = 20, destY = 1;
+    xInicial = 0, yInicial = 18;
+    destX = 19, destY = 1;
+
+
+    let posAtual = new Posicao(xInicial, yInicial);
     abertos.push(posAtual);
 
 
     let g = 0;
-    let h = calc_h(posAtual.x, posAtual.y);
+    let h = calc_h(posAtual);
     let f = g + h;
+
+    let indiceMenorF;
     
-    let campoAnalise = inicializarCampoAnalise( posAtual, f, g, h);
+    let campoAnalise = inicializarCampoAnalise();
+    campoAnalise[posAtual.y][posAtual.x] = new Node(f, g, h, 0, 0, EnumValoresCampo.aberto);
 
     while (posAtual.x !== destX || posAtual.y !== destY) {
-        let indiceMenorF = getIndiceMenorF(campoAnalise);
+        indiceMenorF = getIndiceMenorF(campoAnalise);
         posAtual = abertos[indiceMenorF];
-        open(campoAnalise, indiceMenorF, posAtual);
-        desenhar(converterCampo(campoAnalise));
 
-        await esperar(200);
+        abrir(campoAnalise, indiceMenorF, posAtual);
+        desenharNos(campoAnalise);
+        //desenharCaminho(campoAnalise);
+
+        await esperarClique();
+        continuar = false;
     }
 
-    desenhar(campoAtual);
+    desenharCaminho(campoAnalise);
 }
 
-function open(campoAnalise, indiceMenorF, posCentral) {
-    let fCentral = campoAnalise[posCentral.y][posCentral.x].f;
+function desenharCaminho(campoAnalise) {
+    let novoCampo = inicializarCampoAnalise();
+    let posicao = fechados[fechados.length - 1];
+
+    novoCampo[yInicial][xInicial].valor = EnumValoresCampo.caminho;
+
+    while(posicao.x !== xInicial && posicao.y !== yInicial) {
+        novoCampo[posicao.y][posicao.x] = campoAnalise[posicao.y][posicao.x];
+        novoCampo[posicao.y][posicao.x].valor = EnumValoresCampo.caminho;
+        posicao = new Posicao(posicao.x - campoAnalise[posicao.y][posicao.x].dx, posicao.y - campoAnalise[posicao.y][posicao.x].dy);
+    }
+    
+    desenharNos(novoCampo);
+}
+
+function abrir(campoAnalise, indiceMenorF, posCentral) {
+    let noCentral = campoAnalise[posCentral.y][posCentral.x];
+    let gCentral = noCentral.g;
 
     for(let i = -1; i<=1; i++) {
         for(let j = -1; j<=1; j++) {
             let posAtual = new Posicao(posCentral.x + j, posCentral.y + i);
+
             if(i === 0 && j === 0) {
-                campoAnalise[posCentral.y][posCentral.x].valor = EnumValoresCampo.fechado;
+                noCentral.valor = EnumValoresCampo.fechado;
                 fechados.push(posCentral);
                 abertos.splice(indiceMenorF, 1);
             }
-            else if(indiceValido(posAtual, i, j) && campoValido(campoAnalise, posAtual)) {
+            else if(indiceValido(posAtual) && campoValido(campoAnalise, posAtual)) {
 
-                let g = calc_g(fCentral, j, i);
-                let h = calc_h(posCentral, j, i);
+                let g = calc_g(gCentral, j, i);
+                let h = calc_h(posAtual, j, i);
                 let f = g + h;
 
                 const posIndex = abertos.findIndex(p => p.x === posAtual.x && p.y === posAtual.y);
                 
                 if (posIndex >= 0) {
-                    const valorCampo = campoAnalise[posAtual.y][posAtual.x].valorCampo;
-                    if (f < campoAnalise[posAtual.y][posAtual.x].f) {
+                    if (f < abertos[posIndex].f) {
                         campoAnalise[posAtual.y][posAtual.x] = new Node(f, g, h, j, i, EnumValoresCampo.aberto);
                     }
                 } else {
@@ -89,12 +135,13 @@ function open(campoAnalise, indiceMenorF, posCentral) {
 }
 
 function getIndiceMenorF(campoAnalise){
-    let menorF = 0;
+    let posicao = abertos[0];
+    let menorF = campoAnalise[posicao.y][posicao.x].f;
     let indiceMenorF = 0;
 
     for(let i=1; i<abertos.length; i++) {
-        let posicao = abertos[i];
-        if(menorF === 0 || campoAnalise[posicao.y][posicao.x].f < menorF) {
+        posicao = abertos[i];
+        if(campoAnalise[posicao.y][posicao.x].f < menorF) {
             menorF = campoAnalise[posicao.y][posicao.x].f;
             indiceMenorF = i;
         }
@@ -103,16 +150,16 @@ function getIndiceMenorF(campoAnalise){
     return indiceMenorF;
 }
 
-function indiceValido(posicao, i, j) {
-    return (posicao.x + j >= 0 && posicao.x + j<campoAtual.length && posicao.y + i>= 0 && posicao.y + i <campoAtual[0].length);
+function indiceValido(posicao) {
+    return (posicao.x >= 0 && posicao.x < campoAtual.length && posicao.y >= 0 && posicao.y <campoAtual[0].length);
 }
 
 function campoValido(campoAnalise, posicao) {
     return campoAnalise[posicao.y][posicao.x].valor === EnumValoresCampo.aberto || campoAnalise[posicao.y][posicao.x].valor === EnumValoresCampo.espaco;
 }
 
-function calc_g(f, dx, dy) {
-    return f + calc_dist(0, 0, dx, dy);
+function calc_g(g, dx, dy) {
+    return g + calc_dist(0, 0, dx, dy);
 }
 
 function calc_h(posicao) {
@@ -127,7 +174,7 @@ function esperar(milisegundos) {
     return new Promise(resolve => setTimeout(resolve, milisegundos));
 }
 
-function inicializarCampoAnalise(posAtual, f, g, h) {
+function inicializarCampoAnalise() {
     let campoAnalise = Array.from(Array(campoAtual.length), () => []);
 
     for (let i=0; i<campoAtual.length; i++) {
@@ -135,8 +182,6 @@ function inicializarCampoAnalise(posAtual, f, g, h) {
             campoAnalise[i][j] = new Node(0, 0, 0, 0, 0, campoAtual[i][j]);
         }
     }
-
-    campoAnalise[posAtual.y][posAtual.x] = new Node(f, g, h, 0, 0, EnumValoresCampo.aberto);
 
     return campoAnalise;
 }
