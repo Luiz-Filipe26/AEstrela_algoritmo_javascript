@@ -23,6 +23,9 @@ function Posicao(x, y) {
     this.y = y;
 }
 
+const passoReto = 10;
+const passoDiagonal = Math.floor(passoReto * Math.sqrt(2));
+
 let xInicial, yInicial;
 let destX, destY;
 
@@ -54,7 +57,7 @@ async function gerarCaminho(campo) {
     campoAtual = campo;
 
     xInicial = 0, yInicial = 18;
-    destX = 19, destY = 1;
+    destX = 18, destY = 1;
 
 
     let posAtual = new Posicao(xInicial, yInicial);
@@ -89,6 +92,7 @@ function desenharCaminho(campoAnalise) {
     let novoCampo = inicializarCampoAnalise();
     let posicao = fechados[fechados.length - 1];
 
+    novoCampo[yInicial][xInicial] = campoAnalise[yInicial][xInicial];
     novoCampo[yInicial][xInicial].valor = EnumValoresCampo.caminho;
 
     while(posicao.x !== xInicial && posicao.y !== yInicial) {
@@ -116,7 +120,7 @@ function abrir(campoAnalise, indiceMenorF, posCentral) {
             else if(indiceValido(posAtual) && campoValido(campoAnalise, posAtual)) {
 
                 let g = calc_g(gCentral, j, i);
-                let h = calc_h(posAtual, j, i);
+                let h = calc_h(posAtual);
                 let f = g + h;
 
                 const posIndex = abertos.findIndex(p => p.x === posAtual.x && p.y === posAtual.y);
@@ -159,11 +163,15 @@ function campoValido(campoAnalise, posicao) {
 }
 
 function calc_g(g, dx, dy) {
-    return g + calc_dist(0, 0, dx, dy);
+    return g + ((dx !== 0 && dy !== 0) ? passoDiagonal : passoReto);
 }
 
 function calc_h(posicao) {
-    return calc_dist(posicao.x, destX, posicao.y, destY);
+    const dx = Math.abs(destX - posicao.x);
+    const dy = Math.abs(destY - posicao.y);
+    const passosDiagonais = Math.min(dx, dy);
+    const passosRetos = Math.abs(dx - dy);
+    return Math.floor(passosDiagonais * passoDiagonal + passosRetos * passoReto);
 }
 
 function calc_dist(x1, y1, x2, y2) {

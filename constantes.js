@@ -1,6 +1,6 @@
 class Constantes {
   constructor() {
-    /*this.padraoString = 
+    this.padraoString = 
       "11111111111111111111n" +
       "10000000000000000000n" +
       "10000000001001111111n" +
@@ -21,11 +21,11 @@ class Constantes {
       "10110000000000000001n" +
       "00000000000000000001n" +
       "11111111111111111111";
-    */
+   /*
   this.padraoString = 
       "11111111111111111111n" +
-      "10000000011000000000n" +
-      "10000010000000000001n" +
+      "10000000011000000011n" +
+      "10000010000000000111n" +
       "10000000000000000001n" +
       "10001000000001000001n" +
       "10000000000000001001n" +
@@ -43,6 +43,18 @@ class Constantes {
       "10010000000000000001n" +
       "00000000000000000001n" +
       "11111111111111111111";
+      */
+
+    this.direcoes = new Map();
+    this.direcoes.set('-1, -1', '↙');
+    this.direcoes.set('0, -1', '↓');
+    this.direcoes.set('1, -1', '↘');
+    this.direcoes.set('-1, 0', '←');
+    this.direcoes.set('0, 0', '•');
+    this.direcoes.set('1, 0', '→');
+    this.direcoes.set('-1, 1', '↖');
+    this.direcoes.set('0, 1', '↑');
+    this.direcoes.set('1, 1', '↗');
   }
 }
 

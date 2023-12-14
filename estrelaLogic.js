@@ -17,24 +17,6 @@ const botaoGerarCampo = document.getElementById('botaoGerarCampo');
 const botaoGerarCaminho = document.getElementById('botaoGerarCaminho');
 
 let campoAtual;
-const unidade = 10;
-
-function criarCampoAleatorio() {
-    const matriz = [];
-    for (let i = 0; i < 20; i++) {
-        matriz[i] = [];
-        for (let j = 0; j < 20; j++) {
-            const indiceAleatorio = getNumeroAleatorio(2);
-            const valorEnumAleatorio = valoresCampo[indiceAleatorio];
-            matriz[i][j] = valorEnumAleatorio;
-        }
-    }
-    return matriz;
-}
-
-function getNumeroAleatorio(max) {
-    return Math.floor(Math.random() * max);
-}
 
 function desenharNos(matriz) {
     grade.innerHTML = '';
@@ -47,11 +29,12 @@ function desenharNos(matriz) {
             celula.style.fontSize = '10px';
 
             if(matriz[i][j].f !== 0) {
-                const f = Math.floor(matriz[i][j].f * unidade);
-                const g = Math.floor(matriz[i][j].g * unidade);
-                const h = Math.floor(matriz[i][j].h * unidade);
+                const f = matriz[i][j].f;
+                const g = matriz[i][j].g;
+                const h = matriz[i][j].h;
+                const seta = constantes.direcoes.get(-matriz[i][j].dx + ', ' + matriz[i][j].dy);
     
-                celula.innerHTML = `F: ${f}<br>G: ${g}<br>H: ${h}`;
+                celula.innerHTML = `F: ${f}<br>G: ${g} ${seta}<br>H: ${h}`;
             }
 
             gridContainer.appendChild(celula);
@@ -71,6 +54,24 @@ function desenhar(matriz) {
         }
     }
 }
+
+function criarCampoAleatorio() {
+    const matriz = [];
+    for (let i = 0; i < 20; i++) {
+        matriz[i] = [];
+        for (let j = 0; j < 20; j++) {
+            const indiceAleatorio = getNumeroAleatorio(2);
+            const valorEnumAleatorio = valoresCampo[indiceAleatorio];
+            matriz[i][j] = valorEnumAleatorio;
+        }
+    }
+    return matriz;
+}
+
+function getNumeroAleatorio(max) {
+    return Math.floor(Math.random() * max);
+}
+
 
 function criarCampoPadrao() {
     
