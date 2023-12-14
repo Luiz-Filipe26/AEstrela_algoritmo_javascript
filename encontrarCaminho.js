@@ -62,7 +62,7 @@ async function gerarCaminho(campo) {
 
     let posAtual = new Posicao(xInicial, yInicial);
     abertos.push(posAtual);
-
+ 
 
     let g = 0;
     let h = calc_h(posAtual);
@@ -192,16 +192,4 @@ function inicializarCampoAnalise() {
     }
 
     return campoAnalise;
-}
-
-
-function converterCampo(campoAnalise) {
-    let campo = Array.from(Array(campoAnalise.length), () => []);
-    for (let i=0; i<campoAnalise.length; i++) {
-        for(let j=0; j<campoAnalise[i].length; j++) {
-            campo[i][j] = campoAnalise[i][j].valor;
-        }
-    }
-
-    return campo;
 }
