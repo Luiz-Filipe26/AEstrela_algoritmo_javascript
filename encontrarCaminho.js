@@ -70,8 +70,8 @@ async function gerarCaminho(campo) {
         continuar = false;
     }
 
-    campoAnalise = [];
     desenharCaminho(campoAnalise);
+    campoAnalise = [];
 }
 
 function abrir(campoAnalise, indiceMenorF, posCentral) {
