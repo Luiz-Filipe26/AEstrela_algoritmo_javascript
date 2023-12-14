@@ -35,7 +35,7 @@ let campoAtual;
 
 let continuar = true;
 
-const botaoContinuar = document.getElementById('botaContinuar');
+const botaoContinuar = document.getElementById('botaoContinuar');
 
 async function gerarCaminho(campo) {
     
@@ -80,31 +80,42 @@ function abrir(campoAnalise, indiceMenorF, posCentral) {
 
     for(let i = -1; i<=1; i++) {
         for(let j = -1; j<=1; j++) {
-            let posAtual = new Posicao(posCentral.x + j, posCentral.y + i);
-
             if(i === 0 && j === 0) {
-                noCentral.valor = EnumValoresCampo.fechado;
-                fechados.push(posCentral);
-                abertos.splice(indiceMenorF, 1);
+                fecharNoCentral(noCentral, posCentral, indiceMenorF)
             }
-            else if(indiceValido(posAtual) && campoValido(campoAnalise, posAtual)) {
-
-                let g = calc_g(gCentral, j, i);
-                let h = calc_h(posAtual);
-                let f = g + h;
-
-                const posIndex = abertos.findIndex(p => p.x === posAtual.x && p.y === posAtual.y);
-                
-                if (posIndex >= 0) {
-                    if (f < abertos[posIndex].f) {
-                        campoAnalise[posAtual.y][posAtual.x] = new Node(f, g, h, j, i, EnumValoresCampo.aberto);
-                    }
-                } else {
-                    campoAnalise[posAtual.y][posAtual.x] = new Node(f, g, h, j, i, EnumValoresCampo.aberto);
-                    abertos.push(new Posicao(posAtual.x, posAtual.y));
-                }
+            else {
+                const posAtual = new Posicao(posCentral.x + j, posCentral.y + i);
+                tentarAbrirNo(campoAnalise, gCentral, posAtual, i, j);
             }
         }
+    }
+}
+
+function fecharNoCentral(noCentral, posCentral, indiceMenorF) {
+    noCentral.valor = EnumValoresCampo.fechado;
+    fechados.push(posCentral);
+    abertos.splice(indiceMenorF, 1);
+}
+
+function tentarAbrirNo(campoAnalise, gCentral, posAtual, i, j) {
+
+    if(!indiceValido(posAtual) || !campoValido(campoAnalise, posAtual)) {
+        return;
+    }
+    
+    let g = calc_g(gCentral, j, i);
+    let h = calc_h(posAtual);
+    let f = g + h;
+
+    const posIndex = abertos.findIndex(p => p.x === posAtual.x && p.y === posAtual.y);
+    
+    if (posIndex >= 0) {
+        if (f < abertos[posIndex].f) {
+            campoAnalise[posAtual.y][posAtual.x] = new Node(f, g, h, j, i, EnumValoresCampo.aberto);
+        }
+    } else {
+        campoAnalise[posAtual.y][posAtual.x] = new Node(f, g, h, j, i, EnumValoresCampo.aberto);
+        abertos.push(new Posicao(posAtual.x, posAtual.y));
     }
 }
 
