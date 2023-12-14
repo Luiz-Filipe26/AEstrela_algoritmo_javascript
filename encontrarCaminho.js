@@ -1,7 +1,7 @@
-import desenharNos from './estrelaLogic.js';
+import desenharNodes from './estrelaLogic.js';
 export default gerarCaminho;
 
-const EnumValoresCampo = {
+const EnumEstadosCampo = {
     espaco: 'espaco',
     parede: 'parede',
     caminho: 'caminho',
@@ -9,13 +9,13 @@ const EnumValoresCampo = {
     aberto: 'aberto'
 };
 
-function Node(f, g, h, dx, dy, valor) {
+function Node(f, g, h, deltaX, deltaY, estado) {
     this.f = f;
     this.g = g;
     this.h = h;
-    this.valor = valor;
-    this.dx = dx;
-    this.dy = dy;
+    this.estado = estado;
+    this.deltaX = deltaX;
+    this.deltaY = deltaY;
 }
 
 function Posicao(x, y) {
@@ -23,47 +23,46 @@ function Posicao(x, y) {
     this.y = y;
 }
 
-const unidadePassoReto = 10;
-const unidadePassoDiagonal = Math.floor(unidadePassoReto * Math.sqrt(2));
+const UNIDADE_PASSO_RETO = 10;
+const UNIDADE_PASSO_DIAGONAL = Math.floor(UNIDADE_PASSO_RETO * Math.sqrt(2));
 
 let xInicial, yInicial;
-let destX, destY;
+let destinoX, destinoY;
 
-let abertos = [];
-let fechados = [];
+let nodesAbertos = [];
+let nodesFechados = [];
 let campoAtual;
 
 let continuar = true;
 
-const botaoContinuar = document.getElementById('botaoContinuar');
 
 async function gerarCaminho(campo) {
     
     campoAtual = campo;
 
     xInicial = 0, yInicial = 18;
-    destX = 19, destY = 1;
+    destinoX = 19, destinoY = 1;
 
 
-    let posAtual = new Posicao(xInicial, yInicial);
-    abertos.push(posAtual);
- 
+    let posicaoAtual = new Posicao(xInicial, yInicial);
+    nodesAbertos.push(posicaoAtual);
 
     let g = 0;
-    let h = calc_h(posAtual);
+    let h = calcularH(posicaoAtual);
     let f = g + h;
 
     let indiceMenorF;
     
     let campoAnalise = inicializarCampoAnalise();
-    campoAnalise[posAtual.y][posAtual.x] = new Node(f, g, h, 0, 0, EnumValoresCampo.aberto);
+    campoAnalise[posicaoAtual.y][posicaoAtual.x] = new Node(f, g, h, 0, 0, EnumEstadosCampo.aberto);
 
-    while (posAtual.x !== destX || posAtual.y !== destY) {
+
+    while (posicaoAtual.x !== destinoX || posicaoAtual.y !== destinoY) {
         indiceMenorF = getIndiceMenorF(campoAnalise);
-        posAtual = abertos[indiceMenorF];
+        posicaoAtual = nodesAbertos[indiceMenorF];
 
-        abrir(campoAnalise, indiceMenorF, posAtual);
-        desenharNos(campoAnalise);
+        abrir(campoAnalise, indiceMenorF, posicaoAtual);
+        desenharNodes(campoAnalise);
         //desenharCaminho(campoAnalise);
 
         await esperarClique();
@@ -75,57 +74,57 @@ async function gerarCaminho(campo) {
 }
 
 function abrir(campoAnalise, indiceMenorF, posCentral) {
-    let noCentral = campoAnalise[posCentral.y][posCentral.x];
-    let gCentral = noCentral.g;
+    let nodeCentral = campoAnalise[posCentral.y][posCentral.x];
+    let gCentral = nodeCentral.g;
 
     for(let i = -1; i<=1; i++) {
         for(let j = -1; j<=1; j++) {
             if(i === 0 && j === 0) {
-                fecharNoCentral(noCentral, posCentral, indiceMenorF)
+                fecharNodeCentral(nodeCentral, posCentral, indiceMenorF)
             }
             else {
                 const posAtual = new Posicao(posCentral.x + j, posCentral.y + i);
-                tentarAbrirNo(campoAnalise, gCentral, posAtual, i, j);
+                tentarAbrirNode(campoAnalise, gCentral, posAtual, i, j);
             }
         }
     }
 }
 
-function fecharNoCentral(noCentral, posCentral, indiceMenorF) {
-    noCentral.valor = EnumValoresCampo.fechado;
-    fechados.push(posCentral);
-    abertos.splice(indiceMenorF, 1);
+function fecharNodeCentral(nodeCentral, posCentral, indiceMenorF) {
+    nodeCentral.estado = EnumEstadosCampo.fechado;
+    nodesFechados.push(posCentral);
+    nodesAbertos.splice(indiceMenorF, 1);
 }
 
-function tentarAbrirNo(campoAnalise, gCentral, posAtual, i, j) {
+function tentarAbrirNode(campoAnalise, gCentral, posAtual, i, j) {
 
     if(!indiceValido(posAtual) || !campoValido(campoAnalise, posAtual)) {
         return;
     }
     
-    let g = calc_g(gCentral, j, i);
-    let h = calc_h(posAtual);
+    let g = calcularG(gCentral, j, i);
+    let h = calcularH(posAtual);
     let f = g + h;
 
-    const posIndex = abertos.findIndex(p => p.x === posAtual.x && p.y === posAtual.y);
+    const indiceNoAberto = nodesAbertos.findIndex(p => p.x === posAtual.x && p.y === posAtual.y);
     
-    if (posIndex >= 0) {
-        if (f < abertos[posIndex].f) {
-            campoAnalise[posAtual.y][posAtual.x] = new Node(f, g, h, j, i, EnumValoresCampo.aberto);
+    if (indiceNoAberto >= 0) {
+        if (f < nodesAbertos[indiceNoAberto].f) {
+            campoAnalise[posAtual.y][posAtual.x] = new Node(f, g, h, j, i, EnumEstadosCampo.aberto);
         }
     } else {
-        campoAnalise[posAtual.y][posAtual.x] = new Node(f, g, h, j, i, EnumValoresCampo.aberto);
-        abertos.push(new Posicao(posAtual.x, posAtual.y));
+        campoAnalise[posAtual.y][posAtual.x] = new Node(f, g, h, j, i, EnumEstadosCampo.aberto);
+        nodesAbertos.push(new Posicao(posAtual.x, posAtual.y));
     }
 }
 
 function getIndiceMenorF(campoAnalise){
-    let posicao = abertos[0];
+    let posicao = nodesAbertos[0];
     let menorF = campoAnalise[posicao.y][posicao.x].f;
     let indiceMenorF = 0;
 
-    for(let i=1; i<abertos.length; i++) {
-        posicao = abertos[i];
+    for(let i=1; i<nodesAbertos.length; i++) {
+        posicao = nodesAbertos[i];
         if(campoAnalise[posicao.y][posicao.x].f < menorF) {
             menorF = campoAnalise[posicao.y][posicao.x].f;
             indiceMenorF = i;
@@ -140,19 +139,19 @@ function indiceValido(posicao) {
 }
 
 function campoValido(campoAnalise, posicao) {
-    return campoAnalise[posicao.y][posicao.x].valor === EnumValoresCampo.aberto || campoAnalise[posicao.y][posicao.x].valor === EnumValoresCampo.espaco;
+    return campoAnalise[posicao.y][posicao.x].estado === EnumEstadosCampo.aberto || campoAnalise[posicao.y][posicao.x].estado === EnumEstadosCampo.espaco;
 }
 
-function calc_g(g, dx, dy) {
-    return g + ((dx !== 0 && dy !== 0) ? unidadePassoDiagonal : unidadePassoReto);
+function calcularG(g, deltaX, deltaY) {
+    return g + ((deltaX !== 0 && deltaY !== 0) ? UNIDADE_PASSO_DIAGONAL : UNIDADE_PASSO_RETO);
 }
 
-function calc_h(posicao) {
-    const dx = Math.abs(destX - posicao.x);
-    const dy = Math.abs(destY - posicao.y);
-    const passosDiagonais = Math.min(dx, dy);
-    const passosRetos = Math.abs(dx - dy);
-    return Math.floor(passosDiagonais * unidadePassoDiagonal + passosRetos * unidadePassoReto);
+function calcularH(posicao) {
+    const deltaX = Math.abs(destinoX - posicao.x);
+    const deltaY = Math.abs(destinoY - posicao.y);
+    const passosDiagonais = Math.min(deltaX, deltaY);
+    const passosRetos = Math.abs(deltaX - deltaY);
+    return Math.floor(passosDiagonais * UNIDADE_PASSO_DIAGONAL + passosRetos * UNIDADE_PASSO_RETO);
 }
 
 function inicializarCampoAnalise() {
@@ -169,22 +168,21 @@ function inicializarCampoAnalise() {
 
 function desenharCaminho(campoAnalise) {
     let novoCampo = inicializarCampoAnalise();
-    let posicao = fechados[fechados.length - 1];
+    let posicao = nodesFechados[nodesFechados.length - 1];
 
     novoCampo[yInicial][xInicial] = campoAnalise[yInicial][xInicial];
-    novoCampo[yInicial][xInicial].valor = EnumValoresCampo.caminho;
+    novoCampo[yInicial][xInicial].estado = EnumEstadosCampo.caminho;
 
     while(posicao.x !== xInicial && posicao.y !== yInicial) {
         novoCampo[posicao.y][posicao.x] = campoAnalise[posicao.y][posicao.x];
-        novoCampo[posicao.y][posicao.x].valor = EnumValoresCampo.caminho;
-        posicao = new Posicao(posicao.x - campoAnalise[posicao.y][posicao.x].dx, posicao.y - campoAnalise[posicao.y][posicao.x].dy);
+        novoCampo[posicao.y][posicao.x].estado = EnumEstadosCampo.caminho;
+        posicao = new Posicao(posicao.x - campoAnalise[posicao.y][posicao.x].deltaX, posicao.y - campoAnalise[posicao.y][posicao.x].deltaY);
     }
     
-    desenharNos(novoCampo);
+    desenharNodes(novoCampo);
 }
 
-
-botaoContinuar.onclick = () => {
+document.getElementById('botaoContinuar').onclick = () => {
     continuar = true;
 }
 
@@ -195,7 +193,7 @@ function esperarClique() {
                 clearInterval(interval);
                 resolve();
             }
-        }, 100);
+        }, 50);
     });
 }
 

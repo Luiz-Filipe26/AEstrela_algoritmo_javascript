@@ -1,8 +1,8 @@
 import constantes from './constantes.js';
 import gerarCaminho from './encontrarCaminho.js';
-export default desenharNos;
+export default desenharNodes;
 
-const EnumValoresCampo = {
+const EnumEstadosCampo = {
     espaco: 'espaco',
     parede: 'parede',
     caminho: 'caminho',
@@ -10,7 +10,7 @@ const EnumValoresCampo = {
     aberto: 'aberto'
 };
 
-const valoresCampo = Object.values(EnumValoresCampo);
+const estadosCampo = Object.values(EnumEstadosCampo);
 
 const grade = document.getElementById('grid');
 const botaoGerarCampo = document.getElementById('botaoGerarCampo');
@@ -18,21 +18,36 @@ const botaoGerarCaminho = document.getElementById('botaoGerarCaminho');
 
 let campoAtual;
 
-function desenharNos(matriz) {
+
+botaoGerarCampo.onclick = () => {
+
+    botaoGerarCaminho.style.display = 'inline-block';
+
+    campoAtual = criarCampoPadrao();
+    //campoAtual = criarCampoAleatorio();
+
+    desenhar(campoAtual);
+}
+
+botaoGerarCaminho.onclick = () => {
+    gerarCaminho(campoAtual);
+}
+
+function desenharNodes(matriz) {
     grade.innerHTML = '';
     const gridContainer = document.getElementById('grid');
 
     for (let i = 0; i < matriz.length; i++) {
         for (let j = 0; j < matriz[i].length; j++) {
             const celula = document.createElement('div');
-            celula.className = `grid-item ${matriz[i][j].valor}`;
+            celula.className = `grid-item ${matriz[i][j].estado}`;
             celula.style.fontSize = '10px';
 
             if(matriz[i][j].f !== 0) {
                 const f = matriz[i][j].f;
                 const g = matriz[i][j].g;
                 const h = matriz[i][j].h;
-                const seta = constantes.direcoes.get(-matriz[i][j].dx + ', ' + matriz[i][j].dy);
+                const seta = constantes.direcoes.get(-matriz[i][j].deltaX + ', ' + matriz[i][j].deltaY);
     
                 celula.innerHTML = `F: ${f}<br>G: ${g} ${seta}<br>H: ${h}`;
             }
@@ -61,8 +76,8 @@ function criarCampoAleatorio() {
         matriz[i] = [];
         for (let j = 0; j < 20; j++) {
             const indiceAleatorio = getNumeroAleatorio(2);
-            const valorEnumAleatorio = valoresCampo[indiceAleatorio];
-            matriz[i][j] = valorEnumAleatorio;
+            const estadoAleatorio = estadosCampo[indiceAleatorio];
+            matriz[i][j] = estadoAleatorio;
         }
     }
     return matriz;
@@ -85,7 +100,7 @@ function criarCampoPadrao() {
 
         for (let j = 0; j < linha.length; j++) {
             const caractere = linha.charAt(j);
-            campo[i][j] = valoresCampo[parseInt(caractere)];
+            campo[i][j] = estadosCampo[parseInt(caractere)];
         }
     }
 
@@ -93,21 +108,8 @@ function criarCampoPadrao() {
 }
 
 function iniciarCampo() {
-    campoAtual = Array(20).fill().map(() => Array(20).fill(EnumValoresCampo.espaco));
+    campoAtual = Array(20).fill().map(() => Array(20).fill(EnumEstadosCampo.espaco));
     desenhar(campoAtual);
-}
-
-botaoGerarCampo.onclick = () => {
-
-    botaoGerarCaminho.style.display = 'inline-block';
-
-    campoAtual = criarCampoPadrao();
-
-    desenhar(campoAtual);
-}
-
-botaoGerarCaminho.onclick = () => {
-    gerarCaminho(campoAtual);
 }
 
 iniciarCampo();
