@@ -70,6 +70,7 @@ async function gerarCaminho(campo) {
         continuar = false;
     }
 
+    campoAnalise = [];
     desenharCaminho(campoAnalise);
 }
 
