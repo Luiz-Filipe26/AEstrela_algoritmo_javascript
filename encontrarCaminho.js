@@ -23,8 +23,8 @@ function Posicao(x, y) {
     this.y = y;
 }
 
-const passoReto = 10;
-const passoDiagonal = Math.floor(passoReto * Math.sqrt(2));
+const unidadePassoReto = 10;
+const unidadePassoDiagonal = Math.floor(unidadePassoReto * Math.sqrt(2));
 
 let xInicial, yInicial;
 let destX, destY;
@@ -163,7 +163,7 @@ function campoValido(campoAnalise, posicao) {
 }
 
 function calc_g(g, dx, dy) {
-    return g + ((dx !== 0 && dy !== 0) ? passoDiagonal : passoReto);
+    return g + ((dx !== 0 && dy !== 0) ? unidadePassoDiagonal : unidadePassoReto);
 }
 
 function calc_h(posicao) {
@@ -171,7 +171,7 @@ function calc_h(posicao) {
     const dy = Math.abs(destY - posicao.y);
     const passosDiagonais = Math.min(dx, dy);
     const passosRetos = Math.abs(dx - dy);
-    return Math.floor(passosDiagonais * passoDiagonal + passosRetos * passoReto);
+    return Math.floor(passosDiagonais * unidadePassoDiagonal + passosRetos * unidadePassoReto);
 }
 
 function calc_dist(x1, y1, x2, y2) {
