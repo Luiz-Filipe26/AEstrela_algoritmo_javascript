@@ -1,5 +1,5 @@
-import constantes from './constantes.js';
-import gerarCaminho from './encontrarCaminho.js';
+import constantes from 'constantes.js';
+import gerarCaminho from 'encontrarCaminho.js';
 export default desenharNodes;
 
 const EnumEstadosCampo = {
