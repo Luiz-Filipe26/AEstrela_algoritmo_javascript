@@ -1,4 +1,4 @@
-import desenharNodes from 'estrelaLogic.js';
+import desenharNodes from './estrelaLogic.js';
 export default gerarCaminho;
 
 const EnumEstadosCampo = {
